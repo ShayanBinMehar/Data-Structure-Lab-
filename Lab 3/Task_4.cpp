@@ -8,74 +8,58 @@ struct Node
     Node(int val) : data(val), next(nullptr) {}
 };
 
-Node *reverseKGroup(Node *head, int k)
+int josephus(int n, int k)
 {
-    Node *curr = head;
-    int count = 0;
+    if (n == 1)
+        return 1;
 
-    while (curr && count < k)
-    {
-        curr = curr->next;
-        count++;
-    }
-    if (count < k)
-        return head;
+    Node *head = new Node(1);
+    Node *prev = head;
 
-    curr = head;
-    Node *prev = nullptr;
-    Node *next = nullptr;
-    count = 0;
-    while (curr && count < k)
+    for (int i = 2; i <= n; i++)
     {
-        next = curr->next;
-        curr->next = prev;
-        prev = curr;
-        curr = next;
-        count++;
+        prev->next = new Node(i);
+        prev = prev->next;
     }
-    if (next)
-    {
-        head->next = reverseKGroup(next, k);
-    }
-    return prev;
-}
+    prev->next = head;
 
-void printList(Node *head)
-{
-    while (head)
+    Node *current = head;
+    Node *previous = nullptr;
+
+    while (current->next != current)
     {
-        cout << head->data;
-        if (head->next)
-            cout << " -> ";
-        head = head->next;
+        for (int count = 1; count < k; count++)
+        {
+            previous = current;
+            current = current->next;
+        }
+
+        previous->next = current->next;
+        Node *temp = current;
+        current = current->next;
+        delete temp;
     }
-    cout << endl;
+
+    int survivor = current->data;
+    delete current;
+
+    return survivor;
 }
 
 int main()
 {
-    int arr[] = {1, 2, 3, 4, 5, 6, 7, 8};
-    int n = sizeof(arr) / sizeof(arr[0]);
+    int n = 7;
     int k = 3;
-    Node *head = new Node(arr[0]);
-    Node *curr = head;
-    for (int i = 1; i < n; ++i)
-    {
-        curr->next = new Node(arr[i]);
-        curr = curr->next;
-    }
-    cout << "Original list: ";
-    printList(head);
-    head = reverseKGroup(head, k);
-    cout << "Reversed in groups of " << k << ": ";
-    printList(head);
-    // Free memory
-    curr = head;
-    while (curr)
-    {
-        Node *temp = curr;
-        curr = curr->next;
-        delete temp;
-    }
+
+    int result = josephus(n, k);
+
+    cout << "Josephus Problem: N = " << n << ", k = " << k << endl;
+    cout << "The safe position is: " << result << endl;
+
+    cout << "\nOther test cases:" << endl;
+    cout << "N = 5, k = 2: " << josephus(5, 2) << endl;
+    cout << "N = 14, k = 2: " << josephus(14, 2) << endl;
+    cout << "N = 40, k = 7: " << josephus(40, 7) << endl;
+
     return 0;
 }
