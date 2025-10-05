@@ -8,39 +8,48 @@ struct ListNode
     ListNode(int v) : val(v), next(nullptr) {}
 };
 
-ListNode *detectCycle(ListNode *head)
+ListNode *reverseKGroup(ListNode *head, int k)
 {
-    if (!head || !head->next)
-        return nullptr;
+    if (!head || k <= 1)
+        return head;
 
-    ListNode *slow = head;
-    ListNode *fast = head;
-
-    while (fast && fast->next)
+    ListNode *temp = head;
+    for (int i = 0; i < k; i++)
     {
-        slow = slow->next;
-        fast = fast->next->next;
-        if (slow == fast)
-            break;
+        if (!temp)
+            return head;
+        temp = temp->next;
     }
-    if (!fast || !fast->next)
-        return nullptr;
 
-    slow = head;
-    while (slow != fast)
+    ListNode *prev = nullptr;
+    ListNode *curr = head;
+    ListNode *nxt = nullptr;
+    int count = 0;
+
+    while (curr && count < k)
     {
-        slow = slow->next;
-        fast = fast->next;
+        nxt = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = nxt;
+        count++;
     }
-    return slow;
+
+    head->next = reverseKGroup(curr, k);
+
+    return prev;
 }
 
-void printCycleStart(ListNode *start)
+void printList(ListNode *head)
 {
-    if (start)
-        cout << "Cycle starts at node with value: " << start->val << "\n";
-    else
-        cout << "No cycle\n";
+    while (head)
+    {
+        cout << head->val;
+        if (head->next)
+            cout << " -> ";
+        head = head->next;
+    }
+    cout << endl;
 }
 
 int main()
@@ -50,14 +59,26 @@ int main()
     ListNode *n3 = new ListNode(3);
     ListNode *n4 = new ListNode(4);
     ListNode *n5 = new ListNode(5);
+    ListNode *n6 = new ListNode(6);
+    ListNode *n7 = new ListNode(7);
+    ListNode *n8 = new ListNode(8);
+
     n1->next = n2;
     n2->next = n3;
     n3->next = n4;
     n4->next = n5;
-    n5->next = n3;
+    n5->next = n6;
+    n6->next = n7;
+    n7->next = n8;
 
-    ListNode *start = detectCycle(n1);
-    printCycleStart(start);
+    cout << "Original List:\n";
+    printList(n1);
+
+    int k = 3;
+    ListNode *newHead = reverseKGroup(n1, k);
+
+    cout << "\nList after reversing in groups of " << k << ":\n";
+    printList(newHead);
 
     return 0;
 }
